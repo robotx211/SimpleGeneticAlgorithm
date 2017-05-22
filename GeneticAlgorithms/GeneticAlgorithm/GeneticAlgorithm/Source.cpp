@@ -65,6 +65,8 @@ void SetValueFromGenes(Chromosome* _chromosome)
 	{
 		value += 1;
 	}
+
+	_chromosome->value = value;
 }
 
 int FitnessFunction(int _value)
@@ -147,9 +149,13 @@ void Crossover(Chromosome* _chromosome1, Chromosome* _chromosome2, float _crosso
 	*/
 
 	int crossoverChance = rand() % 1000;
-	if (crossoverChance > 1000 * _crossoverProb)
+	if (crossoverChance < 1000 * _crossoverProb)
 	{
+		std::cout << "CROSSOVER! " << crossoverChance;
+
 		int breakPoint = rand() % 3 + 1; //1 to 3, genes to swap
+
+		std::cout << " bp = " << breakPoint << std::endl;
 
 		bool temp[4];
 		temp[0] = _chromosome2->genes[0];
@@ -163,6 +169,10 @@ void Crossover(Chromosome* _chromosome1, Chromosome* _chromosome2, float _crosso
 			_chromosome1->genes[i] = temp[i];
 		}
 	}
+	else
+	{
+		std::cout << "NO CROSSOVER! " << crossoverChance << std::endl;
+	}
 
 }
 
@@ -170,11 +180,19 @@ void Crossover(Chromosome* _chromosome1, Chromosome* _chromosome2, float _crosso
 void Mutation(Chromosome* _chromosome, float _mutationProb)
 {
 	int mutationChance = rand() % 1000;
-	if (mutationChance > 1000 * _mutationProb)
+	if (mutationChance < 1000 * _mutationProb)
 	{
+		std::cout << "MUTATION! " << mutationChance;
+
 		int mutationPoint = rand() % 4; //0 to 3
 
+		std::cout << " mp = " << mutationPoint << std::endl;
+
 		_chromosome->genes[mutationPoint] = !_chromosome->genes[mutationPoint]; //flip randomly selected gene
+	}
+	else
+	{
+		std::cout << "NO MUTATION! " << mutationChance << std::endl;
 	}
 }
 
@@ -182,6 +200,7 @@ void UpdatePopulation(std::vector<Chromosome> *_population)
 {
 	for (int i = 0; i < _population->size(); i++)
 	{
+
 		SetValueFromGenes(&(_population->at(i)));
 		_population->at(i).fitnessValue = FitnessFunction(_population->at(i).value);
 	}
@@ -220,11 +239,11 @@ int main()
 {
 	srand(time(NULL));
 
-	int N = 6; //population
+	int N = 12; //population
 	float Pc = 0.7f; //crossover probability
 	float Pm = 0.1f; //mutation probability
 
-	int maxEpochNum = 25;
+	int maxEpochNum = 1000;
 
 	std::vector<Chromosome> parentPopulation;
 	std::vector<Chromosome> offspringPopulation;
@@ -242,7 +261,7 @@ int main()
 			parentPopulation.at(i).fitnessValue = FitnessFunction(parentPopulation.at(i).value);
 		}
 
-		std::cout << "PARENT" << std::endl;
+		std::cout << "--PARENT--" << std::endl;
 		OutputPopulation(&parentPopulation);
 
 		//select chromosomes to be used as parents for new population
@@ -252,7 +271,7 @@ int main()
 		}
 
 		UpdatePopulation(&offspringPopulation);
-		std::cout << "CHOSEN" << std::endl;
+		std::cout << "--CHOSEN--" << std::endl;
 		OutputPopulation(&offspringPopulation);
 
 		//perfroms chromosome crossover on each pair of chromosomes
@@ -262,7 +281,7 @@ int main()
 		}
 
 		UpdatePopulation(&offspringPopulation);
-		std::cout << "CROSSOVER" << std::endl;
+		std::cout << "--CROSSOVER--" << std::endl;
 		OutputPopulation(&offspringPopulation);
 
 		//perform random mutation
@@ -272,7 +291,7 @@ int main()
 		}
 
 		UpdatePopulation(&offspringPopulation);
-		std::cout << "MUTATION" << std::endl;
+		std::cout << "--MUTATION--" << std::endl;
 		OutputPopulation(&offspringPopulation);
 
 		ClearPopulation(&parentPopulation);
